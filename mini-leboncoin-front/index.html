@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini Leboncoin</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Mini Leboncoin</h1>
+      <div class="status" id="status"></div>
+    </header>
+
+    <main>
+      <section class="grid">
+        <section class="card" id="auth-section">
+          <h2>Authentification</h2>
+          <div class="auth-forms">
+            <form id="signup-form">
+              <h3>Inscription</h3>
+              <label>
+                Nom
+                <input type="text" name="name" required />
+              </label>
+              <label>
+                Email
+                <input type="email" name="email" required />
+              </label>
+              <label>
+                Mot de passe
+                <input type="password" name="password" minlength="8" required />
+              </label>
+              <button type="submit">Créer un compte</button>
+            </form>
+
+            <form id="login-form">
+              <h3>Connexion</h3>
+              <label>
+                Email
+                <input type="email" name="email" required />
+              </label>
+              <label>
+                Mot de passe
+                <input type="password" name="password" required />
+              </label>
+              <button type="submit">Se connecter</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="card hidden" id="user-section">
+          <div class="user-header">
+            <h2 id="user-name"></h2>
+            <button id="logout-btn" type="button">Se déconnecter</button>
+          </div>
+          <p id="user-email"></p>
+          <button id="refresh-favs-btn" type="button">Mes favoris</button>
+          <ul id="favorites-list" class="ad-list"></ul>
+        </section>
+      </section>
+
+      <section class="card hidden" id="create-ad-section">
+        <h2>Publier une annonce</h2>
+        <form id="create-ad-form">
+          <div class="form-row">
+            <label>
+              Titre
+              <input type="text" name="title" required />
+            </label>
+            <label>
+              Prix (€)
+              <input type="number" name="price" step="0.01" min="0" required />
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Catégorie
+              <input type="text" name="category" required />
+            </label>
+            <label>
+              Ville
+              <input type="text" name="city" required />
+            </label>
+          </div>
+          <label>
+            Description
+            <textarea name="description" rows="4" required></textarea>
+          </label>
+          <label>
+            Images (JPG/PNG)
+            <input type="file" name="images" id="ad-images" accept="image/*" multiple />
+          </label>
+          <button type="submit">Publier</button>
+        </form>
+      </section>
+
+      <section class="card" id="filters-section">
+        <h2>Rechercher</h2>
+        <form id="filters-form">
+          <div class="form-row">
+            <label>
+              Mot-clé
+              <input type="text" name="q" placeholder="Rechercher..." />
+            </label>
+            <label>
+              Catégorie
+              <input type="text" name="category" />
+            </label>
+            <label>
+              Ville
+              <input type="text" name="city" />
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Prix min
+              <input type="number" name="minPrice" min="0" step="0.01" />
+            </label>
+            <label>
+              Prix max
+              <input type="number" name="maxPrice" min="0" step="0.01" />
+            </label>
+            <label>
+              Tri
+              <select name="sort">
+                <option value="date">Date</option>
+                <option value="price">Prix</option>
+              </select>
+            </label>
+            <label>
+              Ordre
+              <select name="order">
+                <option value="desc">Décroissant</option>
+                <option value="asc">Croissant</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Page
+              <input type="number" name="page" min="1" value="1" />
+            </label>
+            <label>
+              Résultats
+              <input type="number" name="limit" min="1" max="50" value="10" />
+            </label>
+          </div>
+          <button type="submit">Chercher</button>
+        </form>
+      </section>
+
+      <section id="ads-section">
+        <div class="ads-header">
+          <h2>Annonces</h2>
+          <div id="pagination-info"></div>
+        </div>
+        <div id="ads-list" class="ad-grid"></div>
+      </section>
+    </main>
+
+    <template id="ad-card-template">
+      <article class="ad-card">
+        <div class="ad-image"></div>
+        <div class="ad-content">
+          <header>
+            <h3 class="ad-title"></h3>
+            <p class="ad-price"></p>
+          </header>
+          <p class="ad-meta"></p>
+          <p class="ad-description"></p>
+          <div class="ad-tags"></div>
+        <div class="ad-actions"></div>
+        <details class="ad-messages">
+          <summary>Messages</summary>
+          <form class="message-form">
+            <label class="message-recipient-field hidden">
+              Destinataire
+              <select name="recipientId" class="message-recipient"></select>
+            </label>
+            <textarea name="content" rows="2" placeholder="Votre message..." required></textarea>
+            <button type="submit">Envoyer</button>
+          </form>
+          <ul class="message-list"></ul>
+        </details>
+        </div>
+      </article>
+    </template>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

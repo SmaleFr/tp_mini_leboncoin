@@ -1,0 +1,362 @@
+:root {
+  color-scheme: light dark;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.4;
+  background-color: #0c1116;
+  color: #f2f4f8;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0c1116 0%, #1f2a37 50%, #0c1116 100%);
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: rgba(15, 23, 42, 0.75);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.status {
+  min-height: 1.25rem;
+  color: #38bdf8;
+  font-size: 0.9rem;
+}
+
+.card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 35px rgba(8, 47, 73, 0.35);
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.auth-forms {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 680px) {
+  .auth-forms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.55);
+  color: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+}
+
+button {
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
+}
+
+button.secondary {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.form-row {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 680px) {
+  .form-row {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+#ads-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ads-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+#pagination-info {
+  font-size: 0.9rem;
+  color: rgba(226, 232, 240, 0.8);
+}
+
+.ad-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 960px) {
+  .ad-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ad-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.68);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.4);
+}
+
+.ad-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.ad-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.1rem 1.2rem 1.3rem;
+}
+
+.ad-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: rgba(148, 163, 184, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ad-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ad-price {
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.ad-meta {
+  font-size: 0.9rem;
+  color: rgba(226, 232, 240, 0.75);
+}
+
+.ad-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.ad-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ad-actions button {
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+.ad-messages {
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+}
+
+.ad-messages summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.message-form {
+  margin-top: 0.75rem;
+}
+
+.message-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.message-list li {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  max-width: 85%;
+}
+
+.message-incoming {
+  align-self: flex-start;
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+.message-outgoing {
+  align-self: flex-end;
+  background: rgba(37, 99, 235, 0.35);
+  border-color: rgba(37, 99, 235, 0.45);
+  text-align: right;
+}
+
+.message-recipient-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.message-recipient-field select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+#favorites-list {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+#favorites-list li {
+  background: rgba(15, 23, 42, 0.45);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  font-size: 0.9rem;
+}
+
+.ad-description {
+  white-space: pre-wrap;
+}
+
+#filters-section,
+#create-ad-section {
+  border-left: 3px solid rgba(56, 189, 248, 0.35);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.6);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.8);
+}
