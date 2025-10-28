@@ -1,4 +1,4 @@
-# Mini Leboncoin – Frontend léger
+# Mini Leboncoin – Frontend
 
 Interface web minimaliste pour consommer l'API du TP Mini Leboncoin. Le front est 100 % statique (HTML/CSS/JS vanilla) et communique avec le backend via `fetch`.
 
