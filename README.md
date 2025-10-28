@@ -10,6 +10,6 @@ Consultez les README dédiés dans chaque dossier pour les instructions détaill
 # Groupe 
 
 - Enzo Laborde
-
+- Laurie Carriere
 
 # Qui à fais quoi ?
