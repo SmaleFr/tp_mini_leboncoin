@@ -130,7 +130,3 @@ Utilisez Postman ou un outil similaire avec le fichier `.env` configuré. Quelqu
 3. Recherche d'annonces avec filtres et pagination
 4. Ajout/suppression de favoris et récupération via `/api/me/favorites`
 5. Messagerie : envoi d'un message et consultation côté propriétaire
-
-## Licence
-
-Projet pédagogique – licence ISC par défaut.
