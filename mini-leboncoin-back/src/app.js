@@ -6,6 +6,7 @@ import env from './config/env.js';
 import notFound from './middlewares/notFound.js';
 import errorHandler from './middlewares/errorHandler.js';
 import { uploadDir } from './config/paths.js';
+import rateLimit from './middlewares/rateLimit.js';
 
 const app = express();
 
@@ -16,6 +17,14 @@ if (env.nodeEnv !== 'production') {
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  rateLimit({
+    windowMs: env.rateLimitWindowMs,
+    max: env.rateLimitMax,
+    skip: (req) => req.path === '/api/health',
+  }),
+);
 
 app.use('/uploads', express.static(uploadDir));
 

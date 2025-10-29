@@ -1,5 +1,6 @@
 import { unauthorized } from '../lib/errors.js';
 import { verifyToken } from '../utils/token.js';
+import { isAccessTokenActive } from '../services/accessTokenService.js';
 import { getUserById } from '../services/userService.js';
 
 function extractToken(req) {
@@ -20,6 +21,10 @@ export function requireAuth() {
         throw unauthorized('Authentication required');
       }
       const payload = verifyToken(token);
+      const active = await isAccessTokenActive(token);
+      if (!active) {
+        throw unauthorized('Invalid token');
+      }
       if (!payload?.sub) {
         throw unauthorized('Invalid token payload');
       }
@@ -45,6 +50,10 @@ export function optionalAuth() {
         return next();
       }
       const payload = verifyToken(token);
+      const active = await isAccessTokenActive(token);
+      if (!active) {
+        return next();
+      }
       if (payload?.sub) {
         const user = await getUserById(payload.sub);
         req.user = user;

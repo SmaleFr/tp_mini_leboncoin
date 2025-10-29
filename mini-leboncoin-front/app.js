@@ -5,10 +5,45 @@ const API_ORIGIN = API_BASE_URL.replace(/\/?api\/?$/, '');
 
 const state = {
   token: localStorage.getItem('miniLbc:token') ?? null,
+  refreshToken: localStorage.getItem('miniLbc:refreshToken') ?? null,
   user: null,
   favorites: new Set(),
   pagination: null,
 };
+
+// --- PoW ---
+async function sha256Hex(str) {
+  const data = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function getFingerprint() {
+  const ua = navigator.userAgent || '';
+  const tz = Intl?.DateTimeFormat?.().resolvedOptions?.().timeZone || '';
+  return sha256Hex(`${ua}|${tz}`);
+}
+
+async function buildPowHeaders({ difficulty = 3 } = {}) {
+  const timestamp = new Date().toISOString();
+  const fp = await getFingerprint();
+  const prefix = '0'.repeat(Math.max(1, difficulty));
+  let nonce = 0;
+  while (true) {
+    const h = await sha256Hex(fp + timestamp + String(nonce));
+    if (h.startsWith(prefix)) {
+      return {
+        'X-Timestamp': timestamp,
+        'X-Fingerprint': fp,
+        'X-PoW-Nonce': String(nonce),
+        'X-PoW-Solution': h,
+      };
+    }
+    nonce++;
+  }
+}
 
 const elements = {
   status: document.getElementById('status'),
@@ -45,30 +80,51 @@ function setStatus(message, type = 'info', persist = false) {
   }
 }
 
-async function apiFetch(path, { method = 'GET', body, headers = {}, skipAuth = false } = {}) {
+async function apiFetch(path, { method = 'GET', body, headers = {}, skipAuth = false, withPow = false, powDifficulty = 3 } = {}) {
   const url = `${API_BASE_URL.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
-  const finalHeaders = { ...headers };
 
-  if (!(body instanceof FormData) && body !== undefined) {
-    finalHeaders['Content-Type'] = 'application/json';
-  }
-  if (!skipAuth && state.token) {
-    finalHeaders.Authorization = `Bearer ${state.token}`;
-  }
+  const doRequest = async () => {
+    const finalHeaders = { ...headers };
+    if (withPow) {
+      const pow = await buildPowHeaders({ difficulty: powDifficulty });
+      Object.assign(finalHeaders, pow);
+    }
+    if (!(body instanceof FormData) && body !== undefined) {
+      finalHeaders['Content-Type'] = 'application/json';
+    }
+    if (!skipAuth && state.token) {
+      finalHeaders.Authorization = `Bearer ${state.token}`;
+    }
 
-  const response = await fetch(url, {
-    method,
-    headers: finalHeaders,
-    body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
-  });
+    const response = await fetch(url, {
+      method,
+      headers: finalHeaders,
+      body: body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
+    });
 
-  const contentType = response.headers.get('content-type') ?? '';
-  const isJson = contentType.includes('application/json');
-  let payload = null;
-  if (isJson) {
-    payload = await response.json();
-  } else {
-    payload = await response.text();
+    const contentType = response.headers.get('content-type') ?? '';
+    const isJson = contentType.includes('application/json');
+    let payload = null;
+    if (isJson) {
+      payload = await response.json();
+    } else {
+      payload = await response.text();
+    }
+    return { response, payload };
+  };
+
+  // First attempt
+  let { response, payload } = await doRequest();
+
+  // If unauthorized, try to refresh access token once (unless skipAuth)
+  if (response.status === 401 && !skipAuth && state.refreshToken) {
+    try {
+      await refreshAccessToken();
+      // Retry once with the new access token
+      ({ response, payload } = await doRequest());
+    } catch (e) {
+      // fallthrough: will throw as unauthorized below
+    }
   }
 
   if (!response.ok) {
@@ -79,6 +135,26 @@ async function apiFetch(path, { method = 'GET', body, headers = {}, skipAuth = f
   }
 
   return payload;
+}
+
+async function refreshAccessToken() {
+  if (!state.refreshToken) {
+    throw new Error('No refresh token');
+  }
+  const data = await apiFetch('/refresh', {
+    method: 'POST',
+    skipAuth: true,
+    body: { refreshToken: state.refreshToken },
+  });
+  if (data?.token) {
+    state.token = data.token;
+  }
+  if (data?.refreshToken) {
+    // In case of rotation in backend; optional for this TP
+    state.refreshToken = data.refreshToken;
+  }
+  persistState();
+  return state.token;
 }
 
 function absoluteFromApi(path) {
@@ -97,6 +173,11 @@ function persistState() {
     localStorage.setItem('miniLbc:token', state.token);
   } else {
     localStorage.removeItem('miniLbc:token');
+  }
+  if (state.refreshToken) {
+    localStorage.setItem('miniLbc:refreshToken', state.refreshToken);
+  } else {
+    localStorage.removeItem('miniLbc:refreshToken');
   }
 }
 
@@ -504,8 +585,9 @@ function setupEventListeners() {
     event.preventDefault();
     const payload = serializeForm(elements.signupForm);
     try {
-      const data = await apiFetch('/signup', { method: 'POST', body: payload, skipAuth: true });
+      const data = await apiFetch('/signup', { method: 'POST', body: payload, skipAuth: true, withPow: true, powDifficulty: 3 });
       state.token = data?.token;
+      state.refreshToken = data?.refreshToken ?? null;
       state.user = data?.user;
       persistState();
       updateAuthUI();
@@ -522,8 +604,9 @@ function setupEventListeners() {
     event.preventDefault();
     const payload = serializeForm(elements.loginForm);
     try {
-      const data = await apiFetch('/login', { method: 'POST', body: payload, skipAuth: true });
+      const data = await apiFetch('/login', { method: 'POST', body: payload, skipAuth: true, withPow: true, powDifficulty: 3 });
       state.token = data?.token;
+      state.refreshToken = data?.refreshToken ?? null;
       state.user = data?.user;
       persistState();
       updateAuthUI();

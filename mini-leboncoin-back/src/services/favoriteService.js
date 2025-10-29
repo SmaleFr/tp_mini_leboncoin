@@ -11,10 +11,14 @@ export async function addFavorite(userId, adId) {
   const adObjectId = toObjectId(adId);
   await getAdById(adObjectId);
 
-  await usersCollection().updateOne(
+  const result = await usersCollection().updateOne(
     { _id: userObjectId },
     { $addToSet: { favorites: adObjectId }, $set: { updatedAt: new Date() } },
   );
+
+  if ((result?.matchedCount ?? 0) === 0) {
+    throw notFound('User not found');
+  }
 
   return listFavorites(userId);
 }
@@ -22,10 +26,13 @@ export async function addFavorite(userId, adId) {
 export async function removeFavorite(userId, adId) {
   const userObjectId = toObjectId(userId);
   const adObjectId = toObjectId(adId);
-  await usersCollection().updateOne(
+  const result = await usersCollection().updateOne(
     { _id: userObjectId },
     { $pull: { favorites: adObjectId }, $set: { updatedAt: new Date() } },
   );
+  if ((result?.matchedCount ?? 0) === 0) {
+    throw notFound('User not found');
+  }
   return listFavorites(userId);
 }
 

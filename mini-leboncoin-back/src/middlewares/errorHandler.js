@@ -3,20 +3,16 @@ import env from '../config/env.js';
 
 // eslint-disable-next-line no-unused-vars
 export default function errorHandler(err, req, res, next) {
+  console.error(err);
+
   const isAppError = err instanceof AppError;
-  const status = isAppError ? err.statusCode : err.statusCode ?? 500;
-  const payload = {
-    error: isAppError ? err.code : 'INTERNAL',
-    message: err.message ?? 'Internal server error',
-  };
+  const status = typeof err?.statusCode === 'number' ? err.statusCode : 500;
+  const body = { message: err?.message ?? 'Erreur interne' };
 
-  if (err.details) {
-    payload.details = err.details;
+  if (env.nodeEnv !== 'production') {
+    if (isAppError && err.code) body.code = err.code;
+    if (err.details) body.details = err.details;
   }
 
-  if (env.nodeEnv !== 'production' && err.stack) {
-    payload.stack = err.stack;
-  }
-
-  res.status(status).json(payload);
+  res.status(status).json(body);
 }

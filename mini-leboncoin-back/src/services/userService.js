@@ -33,7 +33,7 @@ export async function createUser({ email, name, password }) {
 
   const existing = await usersCollection().findOne({ email: normalizedEmail });
   if (existing) {
-    throw conflict('Email already registered');
+    throw conflict('Invalid email address');
   }
 
   const { salt, hash } = hashPassword(password.trim());
@@ -48,8 +48,15 @@ export async function createUser({ email, name, password }) {
     updatedAt: now,
   };
 
-  const result = await usersCollection().insertOne(doc);
-  return sanitizeUser({ ...doc, _id: result.insertedId });
+  try {
+    const result = await usersCollection().insertOne(doc);
+    return sanitizeUser({ ...doc, _id: result.insertedId });
+  } catch (err) {
+    if (err?.code === 11000) {
+      throw conflict('Email already registered');
+    }
+    throw err;
+  }
 }
 
 export async function authenticateUser({ email, password }) {
@@ -132,19 +139,26 @@ export async function updateUser(id, updates) {
     }
   }
 
-  const result = await usersCollection().findOneAndUpdate(
-    { _id: toObjectId(id) },
-    { $set: allowed },
-    { returnDocument: 'after' },
-  );
+  try {
+    const result = await usersCollection().findOneAndUpdate(
+      { _id: toObjectId(id) },
+      { $set: allowed },
+      { returnDocument: 'after' },
+    );
 
-  const { value } = result ?? {};
+    const { value } = result ?? {};
 
-  if (!value) {
-    throw notFound('User not found');
+    if (!value) {
+      throw notFound('User not found');
+    }
+
+    return sanitizeUser(value);
+  } catch (err) {
+    if (err?.code === 11000) {
+      throw conflict('Email already registered');
+    }
+    throw err;
   }
-
-  return sanitizeUser(value);
 }
 
 export async function deleteUser(id) {
