@@ -93,7 +93,7 @@ Des encapsulations d’erreur sont intégrés dans des fonctions sensibles des s
 
 
 
-Laurie: mise en place du microservice pour la gestion des images 
+Laurie: mise en place du microservice pour la gestion des images + rajout de métriques sur le microservice.
 
 # TP Mini Leboncoin
 

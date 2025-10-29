@@ -99,10 +99,20 @@ src/
 - Fallback (securité)
   - Si `MEDIA_SERVICE_URL` est absent ou si le service est indisponible, le backend bascule automatiquement sur le stockage local (`mini-leboncoin-back/uploads`).
 
-## Notes équipe
-
+## Notes equipe`n
 - Le dossier `media-uploads/` est ignoré par Git. Chacun peut générer ses images localement.
 - Pour partager les mêmes images à plusieurs:
   - Héberger ce service sur une machine commune et donner son URL (`MEDIA_SERVICE_URL`) à l’équipe, ou
   - Utiliser le script de seed du backend pour créer rapidement des annonces avec images de test.
+
+## Metriques
+
+Le service expose un petit endpoint JSON pour deux compteurs simples.
+
+- http.requestsTotal : nombre total de requetes HTTP recues (toutes routes).
+- images.bytesTotal : volume cumulé en octets écrit lors des uploads (POST /images).
+
+Consulter:
+- Navigateur ou curl: http://localhost:4002/metrics
+- Exemple: { 'http': { 'requestsTotal': 12 }, 'images': { 'bytesTotal': 123456 } }
 

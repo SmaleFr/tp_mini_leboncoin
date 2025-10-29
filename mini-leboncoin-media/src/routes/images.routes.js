@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { saveBase64Images, deleteImages, staticRouter } from '../utils/storage.js';
+import { addImageBytes } from '../metrics.js';
 
 const router = Router();
 
@@ -7,9 +8,12 @@ router.post('/images', async (req, res) => {
   const { images = [], subdir = 'ads' } = req.body ?? {};
   const list = Array.isArray(images) ? images : [images];
   const saved = await saveBase64Images(list, { subdir });
-  
+
   const base = `${req.protocol}://${req.get('host')}`;
   const withUrls = saved.map((img) => ({ ...img, url: `${base}/uploads/${img.path}` }));
+  // Metrics: accumulate total bytes written by this request
+  const totalBytes = saved.reduce((sum, img) => sum + (img?.size ?? 0), 0);
+  addImageBytes(totalBytes);
   res.json({ images: withUrls });
 });
 
@@ -22,4 +26,3 @@ router.post('/images/delete', async (req, res) => {
 router.use('/uploads', staticRouter());
 
 export default router;
-
