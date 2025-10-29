@@ -2,6 +2,8 @@ import { getCollection } from '../config/mongo.js';
 import { badRequest, forbidden, notFound } from '../lib/errors.js';
 import { toObjectId } from '../utils/objectId.js';
 import { saveBase64Images, deleteImages } from '../utils/imageStorage.js';
+import env from '../config/env.js';
+import { saveImagesRemote, deleteImagesRemote, mediaEnabled } from './mediaClient.js';
 
 const adsCollection = () => getCollection('ads');
 const usersCollection = () => getCollection('users');
@@ -40,7 +42,17 @@ export async function createAd(ownerId, payload) {
 
   const imageInput = payload.images ?? [];
   const imageList = Array.isArray(imageInput) ? imageInput : [imageInput];
-  const images = await saveBase64Images(imageList, { subdir: 'ads' });
+  let images;
+  if (mediaEnabled()) {
+    try {
+      images = await saveImagesRemote(imageList, { subdir: 'ads' });
+    } catch (e) {
+      // fallback local if remote fails
+      images = await saveBase64Images(imageList, { subdir: 'ads' });
+    }
+  } else {
+    images = await saveBase64Images(imageList, { subdir: 'ads' });
+  }
   const now = new Date();
 
   const doc = {
@@ -163,8 +175,20 @@ export async function updateAd(adId, ownerId, updates) {
 
   if (updates.images !== undefined) {
     const updateImages = Array.isArray(updates.images) ? updates.images : [updates.images];
-    await deleteImages(ad.images?.map((img) => img.path));
-    const images = await saveBase64Images(updateImages, { subdir: 'ads' });
+    if (mediaEnabled()) {
+      try {
+        await deleteImagesRemote(ad.images?.map((img) => img.path ?? img));
+      } catch (e) {
+        // ignore
+      }
+    } else {
+      await deleteImages(ad.images?.map((img) => img.path));
+    }
+    const images = mediaEnabled()
+      ? await (async () => {
+          try { return await saveImagesRemote(updateImages, { subdir: 'ads' }); } catch { return await saveBase64Images(updateImages, { subdir: 'ads' }); }
+        })()
+      : await saveBase64Images(updateImages, { subdir: 'ads' });
     $set.images = images.map((image) => ({ ...image, createdAt: now }));
   }
 
@@ -192,7 +216,11 @@ export async function deleteAd(adId, ownerId) {
   }
 
   await adsCollection().deleteOne({ _id: ad._id });
-  await deleteImages(ad.images?.map((img) => img.path));
+  if (mediaEnabled()) {
+    try { await deleteImagesRemote(ad.images?.map((img) => img.path ?? img)); } catch {}
+  } else {
+    await deleteImages(ad.images?.map((img) => img.path));
+  }
   await usersCollection().updateMany({}, { $pull: { favorites: ad._id } });
   await messagesCollection().deleteMany({ adId: ad._id });
 

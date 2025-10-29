@@ -101,7 +101,10 @@ Les routes sont préfixées par `/api`.
 
 ## Gestion des images
 
-Les images d'annonces sont envoyées en base64 (data URL). Elles sont enregistrées dans le dossier `uploads/` (configurable via `IMAGE_UPLOAD_DIR`) puis exposées via `/uploads/…`.
+Les images d'annonces sont envoyées en base64 (data URL) par le front.
+
+- Mode microservice : si `MEDIA_SERVICE_URL` est défini dans `.env`, le backend délègue l'enregistrement et la suppression au service média. Les URLs d'images renvoyées pointent vers ce service, par exemple `http://localhost:4002/uploads/…`.
+- Mode local : si `MEDIA_SERVICE_URL` est absent ou indisponible, les fichiers sont stockés localement dans `uploads/` (configurable via `IMAGE_UPLOAD_DIR`) et servis par le backend via `/uploads/…`.
 
 ## Recherche
 

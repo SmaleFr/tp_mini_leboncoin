@@ -5,7 +5,7 @@ function presentImage(image) {
   if (!image) return image;
   return {
     path: image.path,
-    url: `/uploads/${image.path}`,
+    url: image.url ?? `/uploads/${image.path}`,
     mime: image.mime,
     size: image.size,
     createdAt: image.createdAt instanceof Date ? image.createdAt.toISOString() : image.createdAt,

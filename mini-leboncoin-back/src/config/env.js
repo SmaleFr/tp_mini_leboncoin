@@ -18,6 +18,7 @@ const config = {
   tokenSecret: process.env.TOKEN_SECRET,
   tokenExpiresIn: Number.parseInt(process.env.TOKEN_EXPIRES_IN ?? '604800', 10), // 7 days default
   imageUploadDir: process.env.IMAGE_UPLOAD_DIR ?? 'uploads',
+  mediaServiceUrl: process.env.MEDIA_SERVICE_URL,
 };
 
 export default config;
